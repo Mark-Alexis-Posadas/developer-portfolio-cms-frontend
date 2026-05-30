@@ -1,5 +1,5 @@
 "use client";
-
+import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createProject } from "../api";
@@ -32,7 +32,20 @@ export default function ProjectForm({ setOpen }) {
   );
 
   const handleCreate = async () => {
-    if (!title) return;
+    if (!title.trim()) {
+      toast.error("Project title is required");
+      return;
+    }
+
+    if (!description.trim()) {
+      toast.error("Description is required");
+      return;
+    }
+
+    if (!tech.trim()) {
+      toast.error("Technologies field is required");
+      return;
+    }
 
     setLoading(true);
 
@@ -46,7 +59,7 @@ export default function ProjectForm({ setOpen }) {
         technologies: tech,
         status: "published",
       });
-
+      toast.success("Project created successfully");
       setTitle("");
       setDescription("");
       setImage("");
@@ -57,6 +70,7 @@ export default function ProjectForm({ setOpen }) {
       router.refresh();
     } catch (error) {
       console.error("Failed to create project:", error);
+      toast.error("Failed to create project");
     } finally {
       setLoading(false);
     }
