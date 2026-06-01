@@ -6,11 +6,11 @@ import { createProject, updateProject } from "../api";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { getProjectInputFields } from "../constant/inputFields";
-
+import { Project } from "../types/project.types";
 interface Prop {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  project?: any;
-  isEdit?: boolean;
+  project: Project;
+  isEdit: boolean;
 }
 export default function ProjectForm({ setOpen, project, isEdit }: Prop) {
   const router = useRouter();

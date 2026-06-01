@@ -1,6 +1,13 @@
 "use client";
 import Image from "next/image";
-export default function ProjectList({ initialProjects, onEdit, handleDelete }) {
+
+import { ProjectListProps } from "../types/project.types";
+
+export default function ProjectList({
+  initialProjects,
+  onEdit,
+  handleDelete,
+}: ProjectListProps) {
   return (
     <div className="grid grid-cols-3 gap-4 mt-8">
       {initialProjects.map((p) => {
