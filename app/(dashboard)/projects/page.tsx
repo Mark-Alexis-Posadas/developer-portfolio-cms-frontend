@@ -11,7 +11,6 @@ export default async function ProjectsPage() {
       <PageHeader
         title="Projects Manager"
         description="Manage and publish your portfolio projects"
-        buttonLabel="Add Project"
       >
         <AddProjectButton />
       </PageHeader>
