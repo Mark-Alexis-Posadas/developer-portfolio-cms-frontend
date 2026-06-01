@@ -2,21 +2,26 @@
 import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createProject } from "../api";
+import { createProject, updateProject } from "../api";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { getProjectInputFields } from "../constant/inputFields";
 
-export default function ProjectForm({ setOpen }) {
+interface Prop {
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  project?: any;
+  isEdit?: boolean;
+}
+export default function ProjectForm({ setOpen, project, isEdit }: Prop) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
-  const [github, setGithub] = useState("");
-  const [live, setLive] = useState("");
-  const [tech, setTech] = useState("");
+  const [title, setTitle] = useState(project?.title || "");
+  const [description, setDescription] = useState(project?.description || "");
+  const [image, setImage] = useState(project?.image || "");
+  const [github, setGithub] = useState(project?.github_url || "");
+  const [live, setLive] = useState(project?.live_url || "");
+  const [tech, setTech] = useState(project?.technologies || "");
 
   const inputFields = getProjectInputFields(
     title,
@@ -31,7 +36,8 @@ export default function ProjectForm({ setOpen }) {
     setTech,
   );
 
-  const handleCreate = async () => {
+  const handleSubmit = async () => {
+    setLoading(true);
     if (!title.trim()) {
       toast.error("Project title is required");
       return;
@@ -43,34 +49,40 @@ export default function ProjectForm({ setOpen }) {
     }
 
     if (!tech.trim()) {
-      toast.error("Technologies field is required");
+      toast.error("Technologies is required");
       return;
     }
 
-    setLoading(true);
-
     try {
-      await createProject({
+      const payload = {
         title,
         description,
         image,
         github_url: github,
         live_url: live,
         technologies: tech,
-        status: "published",
-      });
-      toast.success("Project created successfully");
-      setTitle("");
-      setDescription("");
-      setImage("");
-      setGithub("");
-      setLive("");
-      setTech("");
+        status: project?.status || "published",
+      };
 
+      if (isEdit && project?.id) {
+        await updateProject(project.id, payload);
+        toast.success("Project updated successfully");
+      } else {
+        await createProject(payload);
+        toast.success("Project created successfully");
+        setTitle("");
+        setDescription("");
+        setImage("");
+        setGithub("");
+        setLive("");
+        setTech("");
+      }
+
+      setOpen(false);
       router.refresh();
     } catch (error) {
-      console.error("Failed to create project:", error);
-      toast.error("Failed to create project");
+      console.error(error);
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -83,11 +95,13 @@ export default function ProjectForm({ setOpen }) {
         <div className="px-6 py-5 border-b border-gray-100 flex items-start justify-between">
           <div>
             <h3 className="text-xl font-semibold text-gray-900 tracking-tight">
-              Create New Project
+              {isEdit ? "Edit Project" : "Create New Project"}
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">
-              Fill in the details below to add a new project to your portfolio.
+              {isEdit
+                ? "Update the details of your project."
+                : "Fill in the details below to add a new project to your portfolio."}
             </p>
           </div>
 
@@ -134,11 +148,19 @@ export default function ProjectForm({ setOpen }) {
           </button>
 
           <button
-            onClick={handleCreate}
-            disabled={loading}
+            onClick={handleSubmit}
+            disabled={
+              loading || !title.trim() || !description.trim() || !tech.trim()
+            }
             className="inline-flex items-center justify-center text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 shadow-sm rounded-xl px-5 py-2.5 transition-all disabled:opacity-50 cursor-pointer gap-2"
           >
-            {loading ? "Adding..." : "Add Project"}
+            {loading
+              ? isEdit
+                ? "Updating..."
+                : "Adding..."
+              : isEdit
+                ? "Update Project"
+                : "Add Project"}
           </button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-export default function ProjectList({ initialProjects, handleDelete }) {
+export default function ProjectList({ initialProjects, onEdit, handleDelete }) {
   return (
     <div className="grid grid-cols-3 gap-4 mt-8">
       {initialProjects.map((p) => {
@@ -70,6 +70,12 @@ export default function ProjectList({ initialProjects, handleDelete }) {
                   className="text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg"
                 >
                   Delete
+                </button>
+                <button
+                  onClick={() => onEdit(p)}
+                  className="text-xs font-medium text-blue-500 hover:bg-blue-50 p-2 rounded-lg"
+                >
+                  Edit
                 </button>
               </div>
             </div>
